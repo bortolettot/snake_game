@@ -31,13 +31,14 @@ velocidade = 15
 fonte = pygame.font.SysFont("bahnschrift", 25)
 fonte_pontuacao = pygame.font.SysFont("comicsansms", 35)
 
-def pontuacao(pontos):
-    valor = fonte_pontuacao.render("Pontuação: " + str(pontos), True, azul)
+def pontuacao(pontos_jogador, pontos_bot):
+    texto = f"Voce: {pontos_jogador}  Bot: {pontos_bot}"
+    valor = fonte_pontuacao.render(texto, True, azul)
     display.blit(valor, [0, 0])
 
-def nossa_cobra(bloco_cobra, lista_cobra):
+def desenha_cobra(cor, bloco_cobra, lista_cobra):
     for x in lista_cobra:
-        pygame.draw.rect(display, preto, [x[0], x[1], bloco_cobra, bloco_cobra])
+        pygame.draw.rect(display, cor, [x[0], x[1], bloco_cobra, bloco_cobra])
 
 def mensagem(msg, cor):
     texto = fonte.render(msg, True, cor)
@@ -50,11 +51,20 @@ def jogo():
     x1 = largura / 2
     y1 = altura / 2
 
+    bot_x = largura / 4
+    bot_y = altura / 4
+
     x1_mudanca = 0
     y1_mudanca = 0
 
+    bot_x_mudanca = bloco_cobra
+    bot_y_mudanca = 0
+
     lista_cobra = []
     comprimento_cobra = 1
+
+    bot_lista = []
+    bot_comprimento = 1
 
     comida_x = round(random.randrange(0, largura - bloco_cobra) / 10.0) * 10.0
     comida_y = round(random.randrange(0, altura - bloco_cobra) / 10.0) * 10.0
@@ -64,7 +74,7 @@ def jogo():
         while game_close == True:
             display.fill(branco)
             mensagem("Você perdeu! Pressione C-Continuar ou Q-Sair", vermelho)
-            pontuacao(comprimento_cobra - 1)
+            pontuacao(comprimento_cobra - 1, bot_comprimento - 1)
             pygame.display.update()
 
             for event in pygame.event.get():
@@ -92,10 +102,31 @@ def jogo():
                     y1_mudanca = bloco_cobra
                     x1_mudanca = 0
 
+        # Movimento simples do bot em direcao a comida
+        if abs(bot_x - comida_x) > abs(bot_y - comida_y):
+            if bot_x < comida_x:
+                bot_x_mudanca = bloco_cobra
+                bot_y_mudanca = 0
+            elif bot_x > comida_x:
+                bot_x_mudanca = -bloco_cobra
+                bot_y_mudanca = 0
+        else:
+            if bot_y < comida_y:
+                bot_y_mudanca = bloco_cobra
+                bot_x_mudanca = 0
+            elif bot_y > comida_y:
+                bot_y_mudanca = -bloco_cobra
+                bot_x_mudanca = 0
+
         if x1 >= largura or x1 < 0 or y1 >= altura or y1 < 0:
             game_close = True
+        if bot_x >= largura or bot_x < 0 or bot_y >= altura or bot_y < 0:
+            game_close = True
+
         x1 += x1_mudanca
         y1 += y1_mudanca
+        bot_x += bot_x_mudanca
+        bot_y += bot_y_mudanca
         display.fill(branco)
         pygame.draw.rect(display, verde, [comida_x, comida_y, bloco_cobra, bloco_cobra])
         lista_cabeca = []
@@ -105,12 +136,30 @@ def jogo():
         if len(lista_cobra) > comprimento_cobra:
             del lista_cobra[0]
 
+        bot_cabeca = []
+        bot_cabeca.append(bot_x)
+        bot_cabeca.append(bot_y)
+        bot_lista.append(bot_cabeca)
+        if len(bot_lista) > bot_comprimento:
+            del bot_lista[0]
+
         for x in lista_cobra[:-1]:
             if x == lista_cabeca:
                 game_close = True
 
-        nossa_cobra(bloco_cobra, lista_cobra)
-        pontuacao(comprimento_cobra - 1)
+        for x in bot_lista[:-1]:
+            if x == bot_cabeca:
+                game_close = True
+
+        # Colisao entre o jogador e o bot
+        if lista_cabeca in bot_lista:
+            game_close = True
+        if bot_cabeca in lista_cobra:
+            game_close = True
+
+        desenha_cobra(preto, bloco_cobra, lista_cobra)
+        desenha_cobra(vermelho, bloco_cobra, bot_lista)
+        pontuacao(comprimento_cobra - 1, bot_comprimento - 1)
 
         pygame.display.update()
 
@@ -118,6 +167,10 @@ def jogo():
             comida_x = round(random.randrange(0, largura - bloco_cobra) / 10.0) * 10.0
             comida_y = round(random.randrange(0, altura - bloco_cobra) / 10.0) * 10.0
             comprimento_cobra += 1
+        elif bot_x == comida_x and bot_y == comida_y:
+            comida_x = round(random.randrange(0, largura - bloco_cobra) / 10.0) * 10.0
+            comida_y = round(random.randrange(0, altura - bloco_cobra) / 10.0) * 10.0
+            bot_comprimento += 1
 
         clock.tick(velocidade)
 
