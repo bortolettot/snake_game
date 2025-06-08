@@ -11,6 +11,7 @@ preto = (0, 0, 0)
 vermelho = (213, 50, 80)
 verde = (0, 255, 0)
 azul = (50, 153, 213)
+cinza = (100, 100, 100)
 
 # Configurações da tela
 largura = 800
@@ -27,6 +28,12 @@ bloco_cobra = 10
 # Velocidade inicial
 velocidade = 15
 
+# Pausa em segundos ao colidir com obstaculos
+TEMPO_PAUSA = 5
+
+# Quantidade de obstaculos
+NUM_OBSTACULOS = 5
+
 # Fonte do texto
 fonte = pygame.font.SysFont("bahnschrift", 25)
 fonte_pontuacao = pygame.font.SysFont("comicsansms", 35)
@@ -40,9 +47,17 @@ def desenha_cobra(cor, bloco_cobra, lista_cobra):
     for x in lista_cobra:
         pygame.draw.rect(display, cor, [x[0], x[1], bloco_cobra, bloco_cobra])
 
+def desenha_obstaculos(obstaculos):
+    for o in obstaculos:
+        pygame.draw.rect(display, cinza, [o[0], o[1], bloco_cobra, bloco_cobra])
+
 def mensagem(msg, cor):
     texto = fonte.render(msg, True, cor)
     display.blit(texto, [largura / 6, altura / 3])
+
+def mostrar_contagem(texto, segundos, pos_y):
+    contagem = fonte.render(f"{texto}: {segundos}", True, vermelho)
+    display.blit(contagem, [0, pos_y])
 
 def jogo():
     game_over = False
@@ -66,6 +81,20 @@ def jogo():
     bot_lista = []
     bot_comprimento = 1
 
+    # Obstaculos em posicoes aleatorias
+    obstaculos = []
+    for _ in range(NUM_OBSTACULOS):
+        while True:
+            ox = round(random.randrange(0, largura - bloco_cobra) / 10.0) * 10.0
+            oy = round(random.randrange(0, altura - bloco_cobra) / 10.0) * 10.0
+            if (ox, oy) not in obstaculos and (ox, oy) != (x1, y1) and (ox, oy) != (bot_x, bot_y):
+                break
+        obstaculos.append((ox, oy))
+
+    # Controle de pausa ao colidir com obstaculos
+    pausa_jogador = 0
+    pausa_bot = 0
+
     comida_x = round(random.randrange(0, largura - bloco_cobra) / 10.0) * 10.0
     comida_y = round(random.randrange(0, altura - bloco_cobra) / 10.0) * 10.0
 
@@ -88,7 +117,7 @@ def jogo():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game_over = True
-            if event.type == pygame.KEYDOWN:
+            if event.type == pygame.KEYDOWN and time.time() >= pausa_jogador:
                 if event.key == pygame.K_LEFT:
                     x1_mudanca = -bloco_cobra
                     y1_mudanca = 0
@@ -103,32 +132,46 @@ def jogo():
                     x1_mudanca = 0
 
         # Movimento simples do bot em direcao a comida
-        if abs(bot_x - comida_x) > abs(bot_y - comida_y):
-            if bot_x < comida_x:
-                bot_x_mudanca = bloco_cobra
-                bot_y_mudanca = 0
-            elif bot_x > comida_x:
-                bot_x_mudanca = -bloco_cobra
-                bot_y_mudanca = 0
-        else:
-            if bot_y < comida_y:
-                bot_y_mudanca = bloco_cobra
-                bot_x_mudanca = 0
-            elif bot_y > comida_y:
-                bot_y_mudanca = -bloco_cobra
-                bot_x_mudanca = 0
+        if time.time() >= pausa_bot:
+            if abs(bot_x - comida_x) > abs(bot_y - comida_y):
+                if bot_x < comida_x:
+                    bot_x_mudanca = bloco_cobra
+                    bot_y_mudanca = 0
+                elif bot_x > comida_x:
+                    bot_x_mudanca = -bloco_cobra
+                    bot_y_mudanca = 0
+            else:
+                if bot_y < comida_y:
+                    bot_y_mudanca = bloco_cobra
+                    bot_x_mudanca = 0
+                elif bot_y > comida_y:
+                    bot_y_mudanca = -bloco_cobra
+                    bot_x_mudanca = 0
 
         if x1 >= largura or x1 < 0 or y1 >= altura or y1 < 0:
             game_close = True
         if bot_x >= largura or bot_x < 0 or bot_y >= altura or bot_y < 0:
             game_close = True
 
-        x1 += x1_mudanca
-        y1 += y1_mudanca
-        bot_x += bot_x_mudanca
-        bot_y += bot_y_mudanca
+        if time.time() >= pausa_jogador:
+            x1 += x1_mudanca
+            y1 += y1_mudanca
+        if time.time() >= pausa_bot:
+            bot_x += bot_x_mudanca
+            bot_y += bot_y_mudanca
+
+        # Verifica colisao com obstaculos e aplica pausa
+        if (x1, y1) in obstaculos and time.time() >= pausa_jogador:
+            pausa_jogador = time.time() + TEMPO_PAUSA
+            x1_mudanca = 0
+            y1_mudanca = 0
+        if (bot_x, bot_y) in obstaculos and time.time() >= pausa_bot:
+            pausa_bot = time.time() + TEMPO_PAUSA
+            bot_x_mudanca = 0
+            bot_y_mudanca = 0
         display.fill(branco)
         pygame.draw.rect(display, verde, [comida_x, comida_y, bloco_cobra, bloco_cobra])
+        desenha_obstaculos(obstaculos)
         lista_cabeca = []
         lista_cabeca.append(x1)
         lista_cabeca.append(y1)
@@ -160,6 +203,14 @@ def jogo():
         desenha_cobra(preto, bloco_cobra, lista_cobra)
         desenha_cobra(vermelho, bloco_cobra, bot_lista)
         pontuacao(comprimento_cobra - 1, bot_comprimento - 1)
+
+        # Exibe contagem regressiva de pausa, se houver
+        if pausa_jogador > time.time():
+            restante = int(pausa_jogador - time.time()) + 1
+            mostrar_contagem("Pausa Jogador", restante, 40)
+        if pausa_bot > time.time():
+            restante_bot = int(pausa_bot - time.time()) + 1
+            mostrar_contagem("Pausa Bot", restante_bot, 65)
 
         pygame.display.update()
 
