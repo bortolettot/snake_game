@@ -70,7 +70,7 @@ def menu_dificuldade():
                 quit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1:
-                    velocidade = 10
+                    velocidade = 5
                     NUM_OBSTACULOS = 3
                     TEMPO_PAUSA = 3
                     selecionando = False
@@ -126,20 +126,6 @@ def jogo():
 
     while not game_over:
 
-        while game_close == True:
-            display.fill(branco)
-            mensagem("Você perdeu! Pressione C-Continuar ou Q-Sair", vermelho)
-            pontuacao(comprimento_cobra - 1, bot_comprimento - 1)
-            pygame.display.update()
-
-            for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_q:
-                        game_over = True
-                        game_close = False
-                    if event.key == pygame.K_c:
-                        jogo()
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game_over = True
@@ -174,11 +160,6 @@ def jogo():
                     bot_y_mudanca = -bloco_cobra
                     bot_x_mudanca = 0
 
-        if x1 >= largura or x1 < 0 or y1 >= altura or y1 < 0:
-            game_close = True
-        if bot_x >= largura or bot_x < 0 or bot_y >= altura or bot_y < 0:
-            game_close = True
-
         if time.time() >= pausa_jogador:
             x1 += x1_mudanca
             y1 += y1_mudanca
@@ -212,19 +193,11 @@ def jogo():
         if len(bot_lista) > bot_comprimento:
             del bot_lista[0]
 
-        for x in lista_cobra[:-1]:
-            if x == lista_cabeca:
-                game_close = True
-
-        for x in bot_lista[:-1]:
-            if x == bot_cabeca:
-                game_close = True
-
         # Colisao entre o jogador e o bot
         if lista_cabeca in bot_lista:
-            game_close = True
+            pass  # Removendo a condição de game_close
         if bot_cabeca in lista_cobra:
-            game_close = True
+            pass  # Removendo a condição de game_close
 
         desenha_cobra(preto, bloco_cobra, lista_cobra)
         desenha_cobra(vermelho, bloco_cobra, bot_lista)
