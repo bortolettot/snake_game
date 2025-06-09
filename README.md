@@ -22,5 +22,10 @@ Consulte a documentação do projeto para preparar o ambiente e então executar:
 buildozer android debug
 ```
 
+Ou utilize o script `./build_android_docker.sh` para compilar em um container Docker:
+```
+./build_android_docker.sh
+```
+
 Use as setas do teclado ou toques (deslizes) para mover sua cobra. A pontuação exibida no topo indica quantas comidas cada cobra coletou. Na tela
 inicial também é possível selecionar a dificuldade tocando nos botões ou pressionando as teclas **1**, **2** ou **3**.
