@@ -1,18 +1,26 @@
 # Snake Game
 
-Agora o jogo possui uma cobra controlada pelo computador que compete com voce
-para coletar a comida. Para executar:
+O jogo agora pode ser executado tanto em computadores quanto em dispositivos Android.
+Para jogar no computador utilize a versão original em Pygame:
 
 ```
 pip install -r requirements.txt
 python main.py
 ```
 
-Use as setas do teclado para mover sua cobra. A pontuacao exibida no topo
-indica quantas comidas cada cobra ja coletou.
+Para dispositivos Android foi adicionado o arquivo `kivy_main.py` baseado no Kivy e otimizado para toque. Após instalar as dependências (
+`pip install -r requirements.txt`), execute:
 
-Ao iniciar o jogo sera exibida uma tela para escolher a dificuldade.
-Use as teclas **1**, **2** ou **3** para selecionar respectivamente
-facil, medio ou dificil. A escolha altera a velocidade das cobras e a
-quantidade de obstaculos.
+```
+python kivy_main.py
+```
 
+Para gerar um APK é possível usar o [Buildozer](https://github.com/kivy/buildozer).
+Consulte a documentação do projeto para preparar o ambiente e então executar:
+
+```
+buildozer android debug
+```
+
+Use as setas do teclado ou toques (deslizes) para mover sua cobra. A pontuação exibida no topo indica quantas comidas cada cobra coletou. Na tela
+inicial também é possível selecionar a dificuldade tocando nos botões ou pressionando as teclas **1**, **2** ou **3**.
