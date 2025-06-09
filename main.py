@@ -25,13 +25,9 @@ clock = pygame.time.Clock()
 # Tamanho do bloco da cobra
 bloco_cobra = 10
 
-# Velocidade inicial
+# Parametros que variam conforme a dificuldade
 velocidade = 15
-
-# Pausa em segundos ao colidir com obstaculos
 TEMPO_PAUSA = 5
-
-# Quantidade de obstaculos
 NUM_OBSTACULOS = 5
 
 # Fonte do texto
@@ -58,6 +54,36 @@ def mensagem(msg, cor):
 def mostrar_contagem(texto, segundos, pos_y):
     contagem = fonte.render(f"{texto}: {segundos}", True, vermelho)
     display.blit(contagem, [0, pos_y])
+
+def menu_dificuldade():
+    global velocidade, TEMPO_PAUSA, NUM_OBSTACULOS
+    selecionando = True
+    while selecionando:
+        display.fill(branco)
+        texto = "Escolha a dificuldade: 1-Facil  2-Medio  3-Dificil"
+        msg = fonte.render(texto, True, preto)
+        display.blit(msg, [largura / 8, altura / 3])
+        pygame.display.update()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_1:
+                    velocidade = 10
+                    NUM_OBSTACULOS = 3
+                    TEMPO_PAUSA = 3
+                    selecionando = False
+                elif event.key == pygame.K_2:
+                    velocidade = 15
+                    NUM_OBSTACULOS = 5
+                    TEMPO_PAUSA = 5
+                    selecionando = False
+                elif event.key == pygame.K_3:
+                    velocidade = 20
+                    NUM_OBSTACULOS = 7
+                    TEMPO_PAUSA = 7
+                    selecionando = False
 
 def jogo():
     game_over = False
@@ -228,4 +254,6 @@ def jogo():
     pygame.quit()
     quit()
 
-jogo()
+if __name__ == "__main__":
+    menu_dificuldade()
+    jogo()
