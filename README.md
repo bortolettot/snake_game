@@ -8,11 +8,10 @@ pip install -r requirements.txt
 python main.py
 ```
 
-Para dispositivos Android foi adicionado o arquivo `kivy_main.py` baseado no Kivy e otimizado para toque. Após instalar as dependências (
-`pip install -r requirements.txt`), execute:
+Para dispositivos Android foi adicionado o arquivo `android_snake.py` com uma versão simplificada e otimizada para tablets. Após instalar as dependências (`pip install -r requirements.txt`), execute:
 
 ```
-python kivy_main.py
+python android_snake.py
 ```
 
 Para gerar um APK é possível usar o [Buildozer](https://github.com/kivy/buildozer).
@@ -27,5 +26,4 @@ Ou utilize o script `./build_android_docker.sh` para compilar em um container Do
 ./build_android_docker.sh
 ```
 
-Use as setas do teclado ou toques (deslizes) para mover sua cobra. A pontuação exibida no topo indica quantas comidas cada cobra coletou. Na tela
-inicial também é possível selecionar a dificuldade tocando nos botões ou pressionando as teclas **1**, **2** ou **3**.
+Use as setas do teclado, toques ou os botões de seta na tela para mover sua cobra. A pontuação exibida no topo indica quantos quadrados sua cobra já comeu.
